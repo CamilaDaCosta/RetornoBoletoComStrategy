@@ -2,9 +2,12 @@ package com.mycompany.retornoboletopadraostrategy.entity;
 
 //@author camila da costa
 
-import com.mycompany.retornoboletopadraostrategy.dao.LeituraRetorno;
+import com.mycompany.retornoboletopadraostrategy.dao.ProcessarBoletos;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Boleto {
@@ -100,16 +103,24 @@ public class Boleto {
     }
      @Override
     public String toString() {
-        String str = String.format("Id: %10d Banco: %3s", id, codBanco);
+        String str = String.format("Id: %s Banco: %s", id, codBanco);
         String ag = "";
-        if(agencia != null && !agencia.isEmpty() && contaBancaria != null && !contaBancaria.isEmpty()){
-            ag = String.format(" Ag: %6s CC: %10s", agencia, contaBancaria);
+        if(agencia != null && !agencia.isEmpty() && contaBancaria != null && !contaBancaria.isEmpty()){      
+            ag = String.format(" Ag: %s CC: %s CPF: ", agencia, contaBancaria);
+            try{
+                javax.swing.text.MaskFormatter formatadorNumero = new javax.swing.text.MaskFormatter("###.###.###-##");
+		javax.swing.JFormattedTextField txtNumero = new javax.swing.JFormattedTextField(formatadorNumero);
+		txtNumero.setText(cpfCliente);
+                ag+= txtNumero.getText();
+            }catch (ParseException e){}
+            
+            
         }
-
+        
         str += ag + String.format(
-                " Venc: %s Pag: %s Valor: %10.2f",
-                LeituraRetorno.FORMATO_DATA.format(dataVencimento),
-                LeituraRetorno.FORMATO_DATA_HORA.format(dataPagamento), valor);
+                " Vencimento: %s Data Pagamento: %s CPF: %s Valor: %.2f",ProcessarBoletos.FORMATO_DATA.format(dataVencimento),
+                ProcessarBoletos.FORMATO_DATA_HORA.format(dataPagamento),cpfCliente,valor);
+ 
         if(multa > 0){
             str += String.format(" Multa: %10.2f", multa);
         }
