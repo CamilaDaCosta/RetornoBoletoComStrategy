@@ -2,13 +2,9 @@ package com.mycompany.retornoboletopadraostrategy.entity;
 
 //@author camila da costa
 
-import com.mycompany.retornoboletopadraostrategy.dao.ProcessarBoletos;
-import java.text.ParseException;
+import com.mycompany.retornoboletopadraostrategy.dao.LeituraRetorno;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public class Boleto {
     private int id;
@@ -106,20 +102,12 @@ public class Boleto {
         String str = String.format("Id: %s Banco: %s", id, codBanco);
         String ag = "";
         if(agencia != null && !agencia.isEmpty() && contaBancaria != null && !contaBancaria.isEmpty()){      
-            ag = String.format(" Ag: %s CC: %s CPF: ", agencia, contaBancaria);
-            try{
-                javax.swing.text.MaskFormatter formatadorNumero = new javax.swing.text.MaskFormatter("###.###.###-##");
-		javax.swing.JFormattedTextField txtNumero = new javax.swing.JFormattedTextField(formatadorNumero);
-		txtNumero.setText(cpfCliente);
-                ag+= txtNumero.getText();
-            }catch (ParseException e){}
-            
-            
+            ag = String.format(" Ag: %s CC: %s", agencia, contaBancaria);
         }
         
         str += ag + String.format(
-                " Vencimento: %s Data Pagamento: %s CPF: %s Valor: %.2f",ProcessarBoletos.FORMATO_DATA.format(dataVencimento),
-                ProcessarBoletos.FORMATO_DATA_HORA.format(dataPagamento),cpfCliente,valor);
+                " Vencimento: %s Data Pagamento: %s CPF: %s Valor: %.2f",LeituraRetorno.FORMATO_DATA.format(dataVencimento),
+                LeituraRetorno.FORMATO_DATA_HORA.format(dataPagamento),cpfCliente,valor);
  
         if(multa > 0){
             str += String.format(" Multa: %10.2f", multa);

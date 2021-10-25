@@ -1,40 +1,44 @@
 package com.mycompany.retornoboletopadraostrategy.dao;
 
-//@author camila da costa
-
+import static com.mycompany.retornoboletopadraostrategy.dao.LeituraRetorno.FORMATO_DATA;
 import com.mycompany.retornoboletopadraostrategy.entity.Boleto;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public class LeituraRetornoBradesco implements LeituraRetorno{
-
     @Override
     public List<Boleto> lerArquivo(String nomeArquivo) {
         try {
-            //csv file containing data
-            // nomeArquivo = "D:\\Downloads\\PPJ\\arquivos-retorno-boleto\\bradesco-1.csv";
-            Reader reader = Files.newBufferedReader(Paths.get(nomeArquivo));
-            CSVReader csvReader = new CSVReaderBuilder(reader).build();
-            List<String[]> linhas = csvReader.readAll();
-            for (String[] linha : linhas){
-                for (String coluna : linha){
-                    int i = 0;
-                    System.out.println("Boleto: "+linha[i]);
-                    i++;
-                }
+            BufferedReader reader = Files.newBufferedReader(Paths.get(nomeArquivo));
+            String line;
+            List<Boleto> boletos = new ArrayList<>();
+            while((line = reader.readLine()) != null){
+                String[] vetor = line.split(";");
+                Boleto boleto = new Boleto();
+                boleto.setId(Integer.parseInt(vetor[0]));
+                boleto.setCodBanco(vetor[1]);
+                boleto.setAgencia(vetor[2]);
+                boleto.setContaBancaria(vetor[3]);
+                
+                boleto.setDataVencimento(LocalDate.parse(vetor[4], FORMATO_DATA));
+                boleto.setDataPagamento(LocalDate.parse(vetor[5], FORMATO_DATA_HORA).atTime(0,0,0));  
+                boleto.setCpfCliente(vetor[6].substring(0, 3)+"."+vetor[6].substring(3,6)+"."+vetor[6].substring(6,9)+"-"+vetor[6].substring(9,11));
+                
+                boleto.setValor(Double.parseDouble(vetor[7]));
+                boleto.setMulta(Double.parseDouble(vetor[8]));
+                boleto.setJuros(Double.parseDouble(vetor[9]));
+                boletos.add(boleto);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(LeituraRetornoBradesco.class.getName()).log(Level.SEVERE, null, ex);
+
+            return boletos;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return null;
     }
-    
 }
